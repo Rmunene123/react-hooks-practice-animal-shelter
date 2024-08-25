@@ -1,27 +1,42 @@
-import React, { useState } from "react";
-
-import Filters from "./Filters";
-import PetBrowser from "./PetBrowser";
+import React, { useState, useEffect } from 'react';
+import PetBrowser from './PetBrowser';
 
 function App() {
   const [pets, setPets] = useState([]);
-  const [filters, setFilters] = useState({ type: "all" });
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchPets();
+  }, []);
+
+  const fetchPets = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/pets');
+      const petsData = await response.json();
+      setPets(petsData);
+    } catch (error) {
+      console.error('Error fetching pets:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const adoptPet = (petId) => {
+    setPets((prevPets) =>
+      prevPets.map((pet) =>
+        pet.id === petId ? { ...pet, isAdopted: true } : pet
+      )
+    );
+  };
 
   return (
-    <div className="ui container">
-      <header>
-        <h1 className="ui dividing header">React Animal Shelter</h1>
-      </header>
-      <div className="ui container">
-        <div className="ui grid">
-          <div className="four wide column">
-            <Filters />
-          </div>
-          <div className="twelve wide column">
-            <PetBrowser />
-          </div>
-        </div>
-      </div>
+    <div className="App">
+      <h1>Pet Adoption</h1>
+      <button onClick={fetchPets} disabled={loading}>
+        {loading ? 'Loading...' : 'Fetch Pets'}
+      </button>
+      <PetBrowser pets={pets} onAdoptPet={adoptPet} />
     </div>
   );
 }

@@ -1,24 +1,49 @@
-import React from "react";
+import React from 'react';
 
-function Pet() {
+function Pet({ pet = {}, onAdoptPet = () => {} }) {
+  // Destructure properties from the pet object, with default values
+  const {
+    id = '',
+    name = '',
+    type = '',
+    age = '',
+    weight = '',
+    gender = 'male',
+    isAdopted = false,
+  } = pet;
+
+  // Determine the gender icon
+  const genderIcon = gender === 'male' ? '♂' : '♀';
+
+  // Handler for button click
+  const handleClick = () => {
+    if (!isAdopted) {
+      onAdoptPet(id);
+    }
+  };
+
   return (
     <div className="card" data-testid="pet">
       <div className="content">
         <span className="header">
-          {/*'♀' OR '♂' */}
-          PET NAME
+          {name} {genderIcon}
         </span>
         <div className="meta">
-          <span className="date">PET TYPE</span>
+          <span className="date">{type}</span>
         </div>
         <div className="description">
-          <p>Age: PET AGE</p>
-          <p>Weight: PET WEIGHT</p>
+          <p>Age: {age} years</p>
+          <p>Weight: {weight} kg</p>
         </div>
       </div>
       <div className="extra content">
-        <button className="ui disabled button">Already adopted</button>
-        <button className="ui primary button">Adopt pet</button>
+        {isAdopted ? (
+          <button className="ui disabled button">Already adopted</button>
+        ) : (
+          <button className="ui primary button" onClick={handleClick}>
+            Adopt pet
+          </button>
+        )}
       </div>
     </div>
   );
