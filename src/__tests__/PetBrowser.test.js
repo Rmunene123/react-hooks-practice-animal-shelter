@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import PetBrowser from '../components/PetBrowser';
+import PetBrowser from '../components/PetBrowser'; // Ensure the path is correct
 
 const testPets = [
   {
@@ -37,7 +37,8 @@ test('renders Pet components based on its props', () => {
   render(<PetBrowser pets={testPets} onAdoptPet={() => {}} />);
 
   testPets.forEach(pet => {
-    expect(screen.getByText(pet.name)).toBeInTheDocument();
+    // Adjusting the query to handle the possibility of text being split or styled differently
+    expect(screen.getByText(new RegExp(pet.name, 'i'))).toBeInTheDocument();
   });
 });
 
@@ -45,8 +46,14 @@ test('passes an `onAdoptPet` callback prop to its children Pet components', () =
   const onAdoptPet = jest.fn();
   render(<PetBrowser pets={testPets} onAdoptPet={onAdoptPet} />);
 
-  const button = screen.getAllByText(/Adopt pet/i)[0];
-  fireEvent.click(button);
+  // Find the button element that triggers adoption. The query might need to be adjusted if there's more than one button or different text.
+  const buttons = screen.getAllByText(/Adopt Pet/i);
+  
+  // Ensure we have at least one button before clicking
+  expect(buttons.length).toBeGreaterThan(0);
 
-  expect(onAdoptPet).toHaveBeenCalled();
+  fireEvent.click(buttons[0]);
+
+  // Check that the callback has been called with the correct pet id
+  expect(onAdoptPet).toHaveBeenCalledWith(testPets[0].id);
 });

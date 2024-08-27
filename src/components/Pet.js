@@ -1,7 +1,7 @@
 import React from 'react';
 
 function Pet({ pet = {}, onAdoptPet = () => {} }) {
-  // Destructure properties from the pet object, with default values
+  // Destructure properties from the pet object
   const {
     id = '',
     name = '',

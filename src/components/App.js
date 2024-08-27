@@ -1,42 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import PetBrowser from './PetBrowser';
+import React, { useState } from "react";
+import Filters from "./Filters";
+import PetBrowser from "./PetBrowser";
+import data from "../db.json"; 
 
 function App() {
   const [pets, setPets] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({ type: "all" });
 
-  useEffect(() => {
-    fetchPets();
-  }, []);
-
-  const fetchPets = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch('/api/pets');
-      const petsData = await response.json();
-      setPets(petsData);
-    } catch (error) {
-      console.error('Error fetching pets:', error);
-    } finally {
-      setLoading(false);
-    }
+  const handleChangeType = (type) => {
+    setFilters({ type });
   };
 
-  const adoptPet = (petId) => {
-    setPets((prevPets) =>
-      prevPets.map((pet) =>
-        pet.id === petId ? { ...pet, isAdopted: true } : pet
-      )
+  const handleFindPetsClick = () => {
+    const filteredPets = filters.type === "all" 
+      ? data.pets 
+      : data.pets.filter(pet => pet.type === filters.type);
+    setPets(filteredPets);
+  };
+
+  const handleAdoptPet = (id) => {
+    const updatedPets = pets.map((pet) =>
+      pet.id === id ? { ...pet, isAdopted: true } : pet
     );
+    setPets(updatedPets);
   };
 
   return (
-    <div className="App">
-      <h1>Pet Adoption</h1>
-      <button onClick={fetchPets} disabled={loading}>
-        {loading ? 'Loading...' : 'Fetch Pets'}
-      </button>
-      <PetBrowser pets={pets} onAdoptPet={adoptPet} />
+    <div className="ui container">
+      <header>
+        <h1 className="ui dividing header">React Animal Shelter</h1>
+      </header>
+      <div className="ui container">
+        <div className="ui grid">
+          <div className="four wide column">
+            <Filters
+              onChangeType={handleChangeType}
+              onFindPetsClick={handleFindPetsClick}
+            />
+          </div>
+          <div className="twelve wide column">
+            <PetBrowser pets={pets} onAdoptPet={handleAdoptPet} />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
